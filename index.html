@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* Define pleasing font family */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <dropdown-list selected-option="USA"></dropdown-list>
+    <template id="dropdown-list">
+        <style>
+            /* Remove markers, default padding and margins for all ul and li elements */
+            ul,
+            li {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .dropdown-list {
+                display: inline-block;
+                position: relative;
+                width: 100%;
+            }
+
+            .dropdown-list .selection-box {
+                border: 1px solid #ccc;
+                padding: 5px;
+                cursor: pointer;
+                display: block;
+                background: #f1f1f1;
+                border-radius: 0.25rem;
+            }
+
+            .dropdown-list .options {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                border: 1px solid #ccc;
+                min-width: 25vw;
+            }
+
+            .dropdown-list .options.show {
+                display: block;
+            }
+
+            .dropdown-list .options .option {
+                cursor: pointer;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .dropdown-list .options .option.selected,
+            .dropdown-list .options .option:hover {
+                background-color: rgb(0, 0, 0);
+                color: rgb(255, 255, 255);
+            }
+            
+        </style>
+        <div class="dropdown-list">
+            <slot name="selection-box"></slot>
+            <slot name="options"></slot>
+        </div>
+    </template>
+    <script type="module" src="index.mjs"></script>
+</body>
+
+</html>
