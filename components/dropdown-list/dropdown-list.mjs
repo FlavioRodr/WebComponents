@@ -2,9 +2,10 @@
 class DropdownList extends HTMLElement {
     // define getter and setter for new property 'selectedOption' of type string
     get selectedOption() {
-        return this.getAttribute('selected-option');
+        return this.dataset.selectedOption;
     }
     set selectedOption(value) {
+        this.dataset.selectedOption = value;
         // get selected option from map by using key as value
         const selectedOption = this._options.get(value);
         // create 'span' dom element with class set to 'selection-box', data-key set to key and innerHTML set to value
@@ -80,8 +81,8 @@ class DropdownList extends HTMLElement {
         optionsSlot.appendChild(ul);
 
         // if selected-option attribute is defined, call selected option setter
-        if (this.hasAttribute('selected-option')) {
-            this.selectedOption = this.getAttribute('selected-option');
+        if (this.dataset.selectedOption !== undefined && this.dataset.selectedOption !== '') {
+            this.selectedOption = this.dataset.selectedOption;
         }
     }
 
@@ -90,7 +91,8 @@ class DropdownList extends HTMLElement {
         
         this._shadowRoot = this.attachShadow({ mode: 'open' });
         // get dom template element by using id as selector
-        const template = document.getElementById('dropdown-list');
+        const template = document.getElementById('dropdown-list');       
+        // clone template content and append to shadow root
         const content = template.content.cloneNode(true);
         this._shadowRoot.appendChild(content);
 
@@ -102,14 +104,14 @@ class DropdownList extends HTMLElement {
 
     // define lifecycle method attributeChangedCallback
     attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'selected-option') {
+        if (name === 'data-selected-option' && oldValue !== newValue && this._options !== undefined) {
             // call selected option setter
-            this.selectedOption = selectedOption;
+            this.selectedOption = newValue;
         }
     }    
-}
 
-customElements.define('dropdown-list', DropdownList);
+    static get observedAttributes() { return ['data-selected-option'] }
+}
 
 export { DropdownList };
 

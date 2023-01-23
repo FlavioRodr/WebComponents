@@ -1,0 +1,55 @@
+<template id="dropdown-list">
+    <style>
+        /* Remove markers, default padding and margins for all ul and li elements */
+        ul,
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-list {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-list .selection-box {
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+            display: block;
+            background: #f1f1f1;
+            border-radius: 0.25rem;
+        }
+
+        .dropdown-list .options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            border: 1px solid #ccc;
+            min-width: 25vw;
+        }
+
+        .dropdown-list .options.show {
+            display: block;
+        }
+
+        .dropdown-list .options .option {
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .dropdown-list .options .option.selected,
+        .dropdown-list .options .option:hover {
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+        }
+        
+    </style>
+    <div class="dropdown-list">
+        <slot name="selection-box"></slot>
+        <slot name="options"></slot>
+    </div>
+</template>
