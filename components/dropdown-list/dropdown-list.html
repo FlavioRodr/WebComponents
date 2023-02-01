@@ -46,10 +46,35 @@
             background-color: rgb(0, 0, 0);
             color: rgb(255, 255, 255);
         }
-        
+
+        .dropdown-list .triangle {
+            right: 12px;
+            top: 12px;
+            position: absolute;            
+            width: 0;
+            height: 0;            
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;            
+        }
+
+        .dropdown-list:not(.show) .triangle
+        {   
+            border-top-color: #000;
+            border-top-style: solid;
+            border-top-width: 8px;
+        }        
+
+        .dropdown-list.show .triangle {
+            border-bottom-color: #000;
+            border-bottom-style: solid;
+            border-bottom-width: 8px;
+        }
     </style>
     <div class="dropdown-list">
-        <slot name="selection-box"></slot>
+        <div class="selection-box">
+            <slot name="selection-box"></slot>
+            <div class="triangle"></div>
+        </div>
         <slot name="options"></slot>
     </div>
 </template>

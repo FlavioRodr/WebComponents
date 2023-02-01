@@ -1,5 +1,22 @@
 // define a web component named 'dropdown-list'
 class DropdownList extends HTMLElement {
+    get dropdownList() {
+        return this._shadowRoot.querySelector('div.dropdown-list');    
+    }
+
+    get selectionBoxSlot() {
+        return this._shadowRoot.querySelector('slot[name="selection-box"]');    
+    }
+
+    get optionsSlot() {
+        return this._shadowRoot.querySelector('slot[name="options"]');
+    }
+
+    get selectionBox()
+    {
+        return this._shadowRoot.querySelector('.selection-box');
+    }
+
     // define getter and setter for new property 'selectedOption' of type string
     get selectedOption() {
         return this.dataset.selectedOption;
@@ -10,14 +27,13 @@ class DropdownList extends HTMLElement {
         const selectedOption = this._options.get(value);
         // create 'span' dom element with class set to 'selection-box', data-key set to key and innerHTML set to value
         const span = document.createElement('span');
-        span.classList.add('selection-box');
         span.setAttribute('data-key', value);
         span.innerHTML = selectedOption;
-
+        const selectionBox = this.selectionBoxSlot;
         // clear selection box slot html content
-        this._shadowRoot.querySelector('slot[name="selection-box"]').innerHTML = '';
+        selectionBox.innerHTML = '';
         // append 'span' to selection box slot
-        this._shadowRoot.querySelector('slot[name="selection-box"]').appendChild(span);        
+        selectionBox.appendChild(span);
         // get reference to selected li element
         const selectedLi = this._shadowRoot.querySelector(`li[data-key="${value}"]`);
         // add 'selected' class to selected li element
@@ -59,24 +75,8 @@ class DropdownList extends HTMLElement {
             ul.appendChild(li);
         }
         // set click event on ul > li
-        ul.addEventListener('click', (e) => {
-            if (e.target.tagName === 'LI') {
-                // retrieve data-key attribute from li element
-                const key = e.target.getAttribute('data-key');
-                // set selected option
-                this.selectedOption = key;
-                // hide options slot
-                optionsSlot.setAttribute('hidden', '');
-                // if options slot is hidden, remove 'show' class from classList
-                if (optionsSlot.hasAttribute('hidden')) {
-                    classList.remove('show');
-                }
-                // if options slot is not hidden, add 'show' class to classList
-                else {
-                    classList.add('show');
-                }                
-            }
-        });
+        ul.addEventListener('click', this.#onOptionClick.bind(this));
+
         // append ul to options slot
         optionsSlot.appendChild(ul);
 
@@ -88,18 +88,55 @@ class DropdownList extends HTMLElement {
 
     constructor() {
         super();
-        
+
         this._shadowRoot = this.attachShadow({ mode: 'open' });
         // get dom template element by using id as selector
-        const template = document.getElementById('dropdown-list');       
+        const template = document.getElementById('dropdown-list');
         // clone template content and append to shadow root
         const content = template.content.cloneNode(true);
         this._shadowRoot.appendChild(content);
 
         // define click event on selection box that will toggle the options slot
-        this._shadowRoot.querySelector('slot[name="selection-box"]').addEventListener('click', () => {
-            this._shadowRoot.querySelector('slot[name="options"]').toggleAttribute('hidden');
+        this.selectionBox.addEventListener('click', this.#toggleOptions.bind(this));
+
+        // attach hideOptions to document click event if target is not a child of dropdown-list
+        document.addEventListener('click', (e) => {
+            if (!this.contains(e.target)) {
+                this.#hideOptions();
+                // remove class 'show' from div classList
+                this.dropdownList.classList.remove('show');
+            }
         });
+    }
+
+    // define function to toggle options slot
+    #toggleOptions() {
+        this.optionsSlot.toggleAttribute('hidden');
+        // add or remove 'show' class to div classList
+        this.dropdownList.classList.toggle('show');
+    }
+
+    // define function to hide options slot
+    #hideOptions() {
+        this.optionsSlot.setAttribute('hidden', '');
+    }
+
+    // define private method to call when ul > li is clicked
+    #onOptionClick(e) {
+        if (e.target.tagName === 'LI') {
+            // retrieve data-key attribute from li element
+            const key = e.target.getAttribute('data-key');
+            // set selected option
+            this.selectedOption = key;
+            const optionsSlot = this.optionsSlot;
+
+            // hide options slot
+            optionsSlot.setAttribute('hidden', '');
+            optionsSlot.classList.remove('show');
+
+            // add or remove 'show' class to dropdownList
+            this.dropdownList.classList.toggle('show');
+        }
     }
 
     // define lifecycle method attributeChangedCallback
@@ -108,7 +145,17 @@ class DropdownList extends HTMLElement {
             // call selected option setter
             this.selectedOption = newValue;
         }
-    }    
+    }
+
+    // define lifecycle method discconnectedCallback
+    disconnectedCallback() {
+        // remove click event from selection box
+        this.selectionBox.removeEventListener('click');
+        // remove click event from options slot
+        this.optionsSlot.removeEventListener('click');
+        // detach hideOptions from document click event
+        document.removeEventListener('click', this.#hideOptions);
+    }
 
     static get observedAttributes() { return ['data-selected-option'] }
 }
